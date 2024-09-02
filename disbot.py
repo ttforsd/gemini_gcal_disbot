@@ -66,6 +66,8 @@ async def on_message(message):
     
     # Call the LLM model to generate the event in background
     response = await model.main(message_content, time_zone=tz)
+    if type(response) != list: 
+        response = [response]
 
 
     # Call the Google Calendar API to write the event
