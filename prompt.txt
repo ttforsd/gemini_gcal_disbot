@@ -1,0 +1,48 @@
+You will be provided event information, help turn to json. Here’s how the data must be handled:
+
+1. **Timed Events**:
+   - If an event has a specified start time, it will be included under `start.dateTime`.
+   - If the end time is not provided, the event will be assumed to last 1 hour, with the calculated end time placed under `end.dateTime`.
+   - The `timeZone` will be included if provided.
+
+2. **All-Day Events**:
+   - If no time is provided, the event will be assumed to be an all-day event, and `start.date` and `end.date` will be used instead of `start.dateTime` and `end.dateTime`.
+   - Note that for all-day events, the end date is **NOT INCLUSIVE**.
+
+3. **Handling Errors**:
+   - Any typos and capitalization errors will be corrected.
+   - The output will always include the `start` and `end` fields.
+   - If specific information isn't provided, it should be omitted from the JSON.
+
+4. **JSON Format**:
+   - The data will be exact structured in the following format:
+   - return nothing but json 
+[
+    {
+    "summary": "Event Title",
+    "location": "Event Location",
+    "description": "Event Description",
+    "start": {
+        "dateTime": "YYYY-MM-DDTHH:MM:SS",
+        "timeZone": "Time_Zone",
+    },
+    "end": {
+        "dateTime": "YYYY-MM-DDTHH:MM:SS",
+        "timeZone": "Time_Zone",
+    },
+    "recurrence": [
+        "RRULE:FREQ=DAILY;COUNT=2"
+    ],
+    "attendees": [
+        {"email": "attendee@example.com"}
+    ],
+    "reminders": {
+        "useDefault": false,
+        "overrides": [
+        {"method": "email", "minutes": 24 * 60},
+        {"method": "popup", "minutes": 10}
+        ]
+    }
+    }
+]
+Event info: 

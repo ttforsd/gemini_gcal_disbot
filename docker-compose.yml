@@ -1,0 +1,9 @@
+version: '3'
+services: 
+  disbot: 
+    build: .
+    container_name: disbot
+    restart: unless-stopped
+    image: disbot
+    environment:
+      - PYTHONUNBUFFERED=1
