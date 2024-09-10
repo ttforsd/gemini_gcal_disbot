@@ -4,3 +4,4 @@ google_auth_oauthlib
 protobuf
 python-dotenv
 google-generativeai
+python-magic

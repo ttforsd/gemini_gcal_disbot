@@ -65,7 +65,12 @@ async def on_message(message):
         tz = tz_map[message.author.global_name]
     
     # Call the LLM model to generate the event in background
-    response = await model.main(message_content, time_zone=tz)
+    if not message.attachments: 
+        response = await model.main(message_content, time_zone=tz)
+    else: 
+        for attachment in message.attachments: 
+            url = attachment.url
+            response = await model.vision_main(url, tz)
     if type(response) != list: 
         response = [response]
 
