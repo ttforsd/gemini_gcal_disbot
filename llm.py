@@ -80,7 +80,7 @@ class LLM:
         # delete the file
         os.remove(file_name)
 
-        prompt = "Convert this image to MD table"
+        prompt = "Extract text in image into pretty MD format, use MD table if necessary"
         response = await self.vision_model.generate_content_async([file, "\n", prompt])
         print(response.text)
         return response.text
