@@ -3,7 +3,8 @@ import discord
 import os
 from llm import LLM
 import asyncio
-from gcal import write2gcal
+from gcal import write2gcal, del_event
+from database import database
 
 
 
@@ -50,6 +51,33 @@ async def on_message(message):
     switch = False 
     print(message.content)
 
+    del_command = "!del"
+    if message.content[:len(del_command)] == del_command:
+        entry_id = message.content[len(del_command):]
+        entry_id = entry_id.strip()
+        try: 
+            entry_id = int(entry_id)
+        except: 
+            await message.channel.send(f"Invalid entry ID: {entry_id}, only integers are allowed")
+            return
+        
+        db = database()
+        event_ids = db.get_events_by_entry_id(entry_id)
+        if not event_ids:
+            await message.channel.send(f"Entry ID: {entry_id} not found")
+            return
+        for event_id in event_ids:
+            gres = del_event(event_id)
+            await message.channel.send(gres)
+        dres = db.delete_entry_by_id(entry_id)
+        if dres: 
+            await message.channel.send(f"Entry ID: {entry_id} deleted")
+        else: 
+            await message.channel.send(f"An error occurred while deleting entry ID: {entry_id} from the database")
+        return 
+
+        
+
     if len(special_command) <= len(message.content) and special_command == message.content[:len(special_command)]:
         switch = True
         message_content = message.content[len(special_command):]
@@ -77,10 +105,17 @@ async def on_message(message):
 
     # Call the Google Calendar API to write the event
     try:
+        event_ids = [] 
         for event in response:
             event["summary"] = f"{user}: {event['summary']}"
-            res = write2gcal(event)
-            await message.channel.send(res)
+            summary, dt, link, event_id = write2gcal(event)
+            msg = f"Event: {summary} on {dt}. Link: {link}"
+            event_ids.append(event_id)
+            await message.channel.send(msg)
+        db = database()
+        entry_id = db.events_entry(event_ids)
+        await message.channel.send(f"Entry ID: {entry_id}")
+
     except Exception as e:
         await message.channel.send(f"An error occurred: {e}")
 
