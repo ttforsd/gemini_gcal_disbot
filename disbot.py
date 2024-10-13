@@ -51,6 +51,7 @@ async def on_message(message):
     switch = False 
     print(message.content)
 
+    # command for deleting entries 
     del_command = "!del"
     if message.content[:len(del_command)] == del_command:
         entry_id = message.content[len(del_command):]
@@ -69,6 +70,7 @@ async def on_message(message):
         for event_id in event_ids:
             gres = del_event(event_id)
             await message.channel.send(gres)
+        db = database()
         dres = db.delete_entry_by_id(entry_id)
         if dres: 
             await message.channel.send(f"Entry ID: {entry_id} deleted")
@@ -96,9 +98,12 @@ async def on_message(message):
     if not message.attachments: 
         response = await model.main(message_content, time_zone=tz)
     else: 
+        text_input = ""
+        if message_content:
+            text_input = message_content + "\n"
         for attachment in message.attachments: 
             url = attachment.url
-            response = await model.vision_main(url, tz)
+            response = await model.vision_main(text_input, url, tz)
     if type(response) != list: 
         response = [response]
 

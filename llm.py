@@ -109,9 +109,9 @@ class LLM:
             await asyncio.sleep(10 ** times)
             return await self.main(prompt, time_zone, times=times+1)
     
-    async def vision_main(self, img_url, time_zone="Europe/London"):
+    async def vision_main(self, text_input, img_url, time_zone="Europe/London"):
         text = await self.img2text(img_url)
-        return await self.main(text, time_zone)
+        return await self.main(text_input + text, time_zone)
         
 
 
