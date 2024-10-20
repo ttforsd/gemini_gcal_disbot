@@ -46,8 +46,8 @@ def write2gcal(event_dict):
         event = service.events().insert(calendarId=calendar_id, body=event_dict).execute()
         print('Event created: %s' % (event.get('htmlLink')))
         dt = event.get('start').get('dateTime')
-        dt = dt.replace('Z', '+00:00')
         if dt != None: 
+            dt = dt.replace('Z', '+00:00')
             dt = datetime.datetime.fromisoformat(dt)
             hkt = dt.astimezone(hkt)
             ukt = dt.astimezone(ukt)
@@ -56,6 +56,8 @@ def write2gcal(event_dict):
             hkt = hkt.strftime("%A %d/%m/%Y %H:%M")
         else: 
             dt = event.get('start').get('date')
+            if "Z" in dt:
+                dt = dt.replace('Z', '+00:00')
             dt = datetime.datetime.fromisoformat(dt)
             hkt = dt.astimezone(hkt)
             ukt = dt.astimezone(ukt)
