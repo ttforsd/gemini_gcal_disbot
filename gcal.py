@@ -46,7 +46,7 @@ def write2gcal(event_dict):
         event = service.events().insert(calendarId=calendar_id, body=event_dict).execute()
         print('Event created: %s' % (event.get('htmlLink')))
         dt = event.get('start').get('dateTime')
-        dt = '2024-11-11T11:00:00Z'.replace('Z', '+00:00')
+        dt = dt.replace('Z', '+00:00')
         if dt != None: 
             dt = datetime.datetime.fromisoformat(dt)
             hkt = dt.astimezone(hkt)
