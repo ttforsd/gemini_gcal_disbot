@@ -113,8 +113,8 @@ async def on_message(message):
         event_ids = [] 
         for event in response:
             event["summary"] = f"{user}: {event['summary']}"
-            summary, dt, link, event_id = write2gcal(event)
-            msg = f"Event: {summary} on {dt}. Link: {link}"
+            summary, ukt, hkt, link, event_id = write2gcal(event)
+            msg = f"Event: {summary} on UK Time: {ukt}, HK Time: {hkt}. Link: {link}"
             event_ids.append(event_id)
             await message.channel.send(msg)
         db = database()

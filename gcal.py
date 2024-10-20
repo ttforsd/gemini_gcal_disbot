@@ -7,7 +7,7 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 import datetime
 from database import database
-
+import pytz
 load_dotenv(override=True)
 
 
@@ -38,20 +38,32 @@ def write2gcal(event_dict):
             token.write(creds.to_json())
 
     try:
+        utc = pytz.UTC
+        ukt = pytz.timezone('Europe/London')
+        hkt = pytz.timezone('Asia/Hong_Kong')
         service = build('calendar', 'v3', credentials=creds)
         # Call the Calendar API
         event = service.events().insert(calendarId=calendar_id, body=event_dict).execute()
         print('Event created: %s' % (event.get('htmlLink')))
         dt = event.get('start').get('dateTime')
+        dt = '2024-11-11T11:00:00Z'.replace('Z', '+00:00')
         if dt != None: 
             dt = datetime.datetime.fromisoformat(dt)
+            hkt = dt.astimezone(hkt)
+            ukt = dt.astimezone(ukt)
             dt = dt.strftime("%A %d/%m/%Y %H:%M")
+            ukt = ukt.strftime("%A %d/%m/%Y %H:%M")
+            hkt = hkt.strftime("%A %d/%m/%Y %H:%M")
         else: 
             dt = event.get('start').get('date')
             dt = datetime.datetime.fromisoformat(dt)
+            hkt = dt.astimezone(hkt)
+            ukt = dt.astimezone(ukt)
             dt = dt.strftime("%A %d/%m/%Y")
+            ukt = ukt.strftime("%A %d/%m/%Y")
+            hkt = hkt.strftime("%A %d/%m/%Y")
         
-        return event.get('summary'), dt, event.get('htmlLink'), event.get('id')
+        return event.get('summary'), ukt, hkt, event.get('htmlLink'), event.get('id')
         return f"Event: {event.get('summary')} on {dt}. Link: {event.get('htmlLink')}"
 
     except HttpError as error:
