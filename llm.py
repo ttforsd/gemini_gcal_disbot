@@ -30,13 +30,14 @@ class LLM:
         )
 
         self.vision_model = genai.GenerativeModel(
-            model_name="gemini-1.5-flash", 
+            model_name="gemini-2.0-flash-exp", 
             generation_config={
                 "temperature": 0,
                 "top_p": 1,
                 "max_output_tokens": 8096,
-                "response_mime_type": "text/plain",
+                "response_mime_type": "text/plain",  
             },
+            system_instruction="You convert image to html. if any tables, make sure all the cells and formattings are accurately represented in the html",
         )
 
 
