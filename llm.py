@@ -1,5 +1,6 @@
 import os 
-import google.generativeai as genai 
+# import google.generativeai as genai 
+from google import genai
 from dotenv import load_dotenv
 from datetime import datetime
 import asyncio
@@ -8,37 +9,16 @@ import requests
 import magic
 import uuid
 
-
 load_dotenv(override=True)
 
-genai.configure(api_key=os.environ["GOOGLE_API_KEY"])
+api_key = os.environ.get("GOOGLE_API_KEY")
 
-# Create the model
-
+# genai.configure(api_key=api_key)
 
 class LLM:
     def __init__(self):
-        self.model = genai.GenerativeModel(
-        model_name="gemini-2.0-flash",
-        generation_config={
-            "temperature": 0,
-            "top_p": 1,
-            "max_output_tokens": 8096,
-            "response_mime_type": "application/json",
-        },
-        safety_settings="BLOCK_NONE"
-        )
-
-        self.vision_model = genai.GenerativeModel(
-            model_name="gemini-2.0-flash", 
-            generation_config={
-                "temperature": 0,
-                "top_p": 1,
-                "max_output_tokens": 8096,
-                "response_mime_type": "text/plain",  
-            },
-            system_instruction="You convert image or documents to html. if any tables, make sure all the cells and formattings are accurately represented in the html",
-        )
+        self.client = genai.Client()
+        self.model = "gemma-3-27b-it"
 
 
     def load_template(self): 
@@ -54,7 +34,10 @@ class LLM:
         return prompt
     
     async def get_response(self, prompt):
-        response = await self.model.generate_content_async(prompt)
+        response = await self.client.aio.models.generate_content(
+            model=self.model,
+            contents = [prompt]
+        )
         return response
     
     # remove ```json ... ``` or ``` ```from the response 
@@ -76,13 +59,16 @@ class LLM:
         file_name = f"tmp/{uuid.uuid4()}.{file_extension}"
         with open(file_name, "wb") as f:
             f.write(img_bin)
-        file = genai.upload_file(file_name, mime_type=file_type)
+        file = self.client.files.upload(file = file_name)
 
         # delete the file
         os.remove(file_name)
 
         prompt = "You convert image to html. if any tables, make sure all the cells and formattings are accurately represented in the html, without any missing or extra cells or formattings."
-        response = await self.vision_model.generate_content_async([file, "\n", prompt])
+        response = await self.client.aio.models.generate_content(
+            model=self.model,
+            contents = [file, prompt]
+        )
         print(response.text)
         return response.text
     
