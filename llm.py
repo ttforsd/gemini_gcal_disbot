@@ -18,7 +18,8 @@ api_key = os.environ.get("GOOGLE_API_KEY")
 class LLM:
     def __init__(self):
         self.client = genai.Client()
-        self.model = "gemma-3-27b-it"
+        # self.model = "gemma-3-27b-it"
+        self.model = "gemma-4-31b-it"
 
 
     def load_template(self): 
