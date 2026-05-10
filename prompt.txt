@@ -45,4 +45,5 @@ You will be provided event information, help turn to json. Here’s how the data
     }
     }
 ]
+Output nothing but json. Do not include any explanations or additional text.
 Event info: 

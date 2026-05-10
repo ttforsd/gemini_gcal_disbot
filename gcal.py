@@ -13,9 +13,10 @@ load_dotenv(override=True)
 
 
 SCOPES = ['https://www.googleapis.com/auth/calendar']
-calendar_id = os.getenv('CALENDAR_ID')
+default_calendar_id = os.getenv('CALENDAR_ID_0')
 
-def write2gcal(event_dict):
+def write2gcal(event_dict, calendar_id = default_calendar_id):
+    print(calendar_id, "this is calendar id")
     """Shows basic usage of the Google Calendar API.
     Prints the start and name of the next 10 events on the user's calendar.
     """
@@ -74,7 +75,7 @@ def write2gcal(event_dict):
     
 
 
-def del_event(id):
+def del_event(id, calendar_id = default_calendar_id):
     if type(id) == tuple:
         id = id[0]
     print("eid", id)

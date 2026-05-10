@@ -1,7 +1,8 @@
 from dotenv import load_dotenv
 import discord
 import os
-from llm import LLM
+# from llm import LLM
+from llm_groq import LLM 
 import asyncio
 from gcal import write2gcal, del_event
 from database import database
@@ -28,6 +29,10 @@ tz_map = {
     os.getenv("DISCORD_NAME_1"): os.getenv("TZ_1")
 }
 
+calid_map = {
+    os.getenv("NAME_0"): os.getenv("CALENDAR_ID_0"),
+    os.getenv("NAME_1"): os.getenv("CALENDAR_ID_1")
+}
 
 token = os.getenv('DISCORD_TOKEN')
 intents = discord.Intents.default()
@@ -68,7 +73,11 @@ async def on_message(message):
             await message.channel.send(f"Entry ID: {entry_id} not found")
             return
         for event_id in event_ids:
-            gres = del_event(event_id)
+            calendar_id = db.get_calendar_id_by_event_id(event_id[0])
+            if calendar_id:
+                gres = del_event(event_id, calendar_id)
+            else: 
+                gres = del_event(event_id)
             await message.channel.send(gres)
         db = database()
         dres = db.delete_entry_by_id(entry_id)
@@ -111,14 +120,15 @@ async def on_message(message):
     # Call the Google Calendar API to write the event
     try:
         event_ids = [] 
+        cal_id = calid_map.get(user)
         for event in response:
             event["summary"] = f"{user}: {event['summary']}"
-            summary, ukt, hkt, link, event_id = write2gcal(event)
+            summary, ukt, hkt, link, event_id = write2gcal(event, cal_id)
             msg = f"Event: {summary} on UK Time: {ukt}, HK Time: {hkt}. Link: {link}"
             event_ids.append(event_id)
             await message.channel.send(msg)
         db = database()
-        entry_id = db.events_entry(event_ids)
+        entry_id = db.events_entry(event_ids, calendar_id=cal_id)
         await message.channel.send(f"Entry ID: {entry_id}")
 
     except Exception as e:

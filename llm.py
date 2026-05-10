@@ -21,7 +21,6 @@ class LLM:
         # self.model = "gemma-3-27b-it"
         self.model = "gemma-4-31b-it"
 
-
     def load_template(self): 
         with open("prompt.txt", "r") as f: 
             return f.read()

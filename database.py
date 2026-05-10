@@ -11,6 +11,7 @@ class database:
         print(os.getenv("TURSO_AUTH_TOKEN"))
         self.create_entry_table()
         self.create_cal_table()
+        self.create_event_cal_table()
 
 
     def create_entry_table(self): 
@@ -33,10 +34,19 @@ class database:
         self.con.commit()
         print("cal_table created")
 
+    def create_event_cal_table(self): 
+        cur = self.con.cursor()
+        cur.execute("CREATE TABLE IF NOT EXISTS event_cal_table (cal_idx INTEGER PRIMARY KEY AUTOINCREMENT, event_id VARCHAR(255), calendar_id VARCHAR(255));")
+        self.con.commit()
+        # create index for event_id in event_cal_table
+        cur.execute("CREATE INDEX IF NOT EXISTS event_id_index ON event_cal_table (event_id);")
+        self.con.commit()
+        
     def del_tables(self): 
         cur = self.con.cursor()
         cur.execute("DROP TABLE entry_table")
         cur.execute("DROP TABLE cal_table")
+        cur.execute("DROP TABLE event_cal_table")
         self.con.commit()
         print("tables deleted")
 
@@ -62,9 +72,19 @@ class database:
         cur.execute("DELETE FROM cal_table WHERE event_id = ?;", (event_id,))
         self.con.commit()
         print(f"event {event_id} deleted")
+        if self.get_calendar_id_by_event_id(event_id): 
+            self.delete_calendar_id_by_event_id(event_id)
         return True 
     
-    def events_entry(self, events): 
+    def delete_calendar_id_by_event_id(self, event_id): 
+        cur = self.con.cursor()
+        cur.execute("DELETE FROM event_cal_table WHERE event_id = ?;", (event_id,))
+        self.con.commit()
+        print(f"calendar_id for event {event_id} deleted")
+        return True
+    
+    def events_entry(self, events, calendar_id=None): 
+        print("events_entry", events, calendar_id)
         # create entry and get entry_id
         cur = self.con.cursor()
         cur.execute("INSERT INTO entry_table (creation_datetime) VALUES (datetime('now'));")
@@ -76,6 +96,10 @@ class database:
             cur.execute("INSERT INTO cal_table (entry_id, event_id) VALUES (?, ?);", (entry_id, event))
             self.con.commit()
             print(f"events {events} added to entry {entry_id}")
+            print("calendar_id in events_entry", calendar_id)
+            if calendar_id:
+                cur.execute("INSERT INTO event_cal_table (event_id, calendar_id) VALUES (?, ?);", (event, calendar_id))
+                self.con.commit()
         return entry_id
     
     def get_events_by_entry_id(self, entry_id): 
@@ -87,6 +111,15 @@ class database:
             print(event)
             print(type(event))
         return events
+    
+    def get_calendar_id_by_event_id(self, event_id): 
+        cur = self.con.cursor()
+        cur.execute("SELECT calendar_id FROM event_cal_table WHERE event_id = ?;", (event_id,))
+        calendar_id = cur.fetchone()
+        if calendar_id: 
+            return calendar_id[0]
+        else: 
+            return None
         
 
 
