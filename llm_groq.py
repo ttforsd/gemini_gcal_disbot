@@ -10,6 +10,7 @@ load_dotenv(override=True)
 
 
 
+
 class LLM:
     def __init__(self):
         self.client = AsyncGroq(api_key=os.getenv("GROQ_KEY"))
@@ -33,7 +34,7 @@ class LLM:
             model = self.model,
             messages=[{"role": "user", "content": prompt}], 
             temperature=0.1, 
-            max_tokens=4096
+            max_tokens=16384
         )
         return chat_completion.choices[0].message.content
     
