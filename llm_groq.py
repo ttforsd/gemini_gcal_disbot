@@ -36,7 +36,7 @@ class LLM:
             messages=[{"role": "user", "content": prompt}], 
             temperature=0.1, 
             max_tokens=6000, 
-            reasoning_effort="high" # gpt-oss specific parameter to allocate more compute for reasoning
+            reasoning_effort="medium" # gpt-oss specific parameter to allocate more compute for reasoning
         )
         return chat_completion.choices[0].message.content
     
