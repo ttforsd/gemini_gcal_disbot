@@ -14,7 +14,8 @@ load_dotenv(override=True)
 class LLM:
     def __init__(self):
         self.client = AsyncGroq(api_key=os.getenv("GROQ_KEY"))
-        self.model = "qwen/qwen3-32b" 
+        # self.model = "qwen/qwen3-32b" 
+        self.model = "openai/gpt-oss-120b"
         self.vision_model = "meta-llama/llama-4-scout-17b-16e-instruct"
 
     def load_template(self): 
@@ -34,7 +35,8 @@ class LLM:
             model = self.model,
             messages=[{"role": "user", "content": prompt}], 
             temperature=0.1, 
-            max_tokens=4000
+            max_tokens=6000, 
+            reasoning_effort="medium" # gpt-oss specific parameter to allocate more compute for reasoning
         )
         return chat_completion.choices[0].message.content
     
