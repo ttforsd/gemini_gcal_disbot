@@ -34,7 +34,7 @@ class LLM:
             model = self.model,
             messages=[{"role": "user", "content": prompt}], 
             temperature=0.1, 
-            max_tokens=6000
+            max_tokens=4000
         )
         return chat_completion.choices[0].message.content
     
